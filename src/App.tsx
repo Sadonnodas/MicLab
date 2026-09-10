@@ -9,6 +9,7 @@ import { OperatingPointView } from './ui/OperatingPointView'
 import { ExplanationPanel } from './ui/ExplanationPanel'
 import { Transport } from './ui/Transport'
 import { HardwareWarnings } from './ui/HardwareWarnings'
+import { AssemblyMode } from './ui/AssemblyMode'
 import { LessonDrawer } from './ui/LessonDrawer'
 import { MicEngine } from './audio/engine'
 import { buildCircuit } from './stages/build'
@@ -80,6 +81,16 @@ export default function App() {
   }, [build])
 
   const reference = compareRef ? referenceById(compareRef) : null
+
+  // The walkthrough is a different screen, not a panel bolted onto this one —
+  // its whole value is that there is one thing to read and one button to press.
+  if (mode === 'assembly') {
+    return (
+      <div className="h-full bg-zinc-950 text-zinc-100">
+        <AssemblyMode engine={engine} />
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-full flex-col bg-zinc-950 text-zinc-100">

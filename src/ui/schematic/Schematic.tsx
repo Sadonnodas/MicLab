@@ -34,23 +34,35 @@ interface Props {
   onSelect: (id: string | null) => void
   /** Element notes from the netlist, for the hover strip. */
   notes: Record<string, { label: string; note: string; value?: string }>
+  /** Assembly walkthrough: which parts are on the board, and which just arrived. */
+  fitted?: Set<string>
+  justAdded?: Set<string>
+  /** Hide the hover strip in the simplified walkthrough. */
+  quiet?: boolean
 }
 
 const W = 1120
 const H = 300
 
-export function Schematic({ build, activeStage, selected, onSelect, notes }: Props) {
+export function Schematic({ build, activeStage, selected, onSelect, notes, fitted, justAdded, quiet }: Props) {
   const [hover, setHover] = useState<string | null>(null)
   const info = hover ? notes[hover] : selected ? notes[selected] : null
 
   const dim = (stage: BuildStage) => stage !== activeStage
+
+  const fitOf = (id: string): 'fitted' | 'new' | 'empty' => {
+    if (!fitted) return 'fitted'
+    if (justAdded?.has(id)) return 'new'
+    return fitted.has(id) ? 'fitted' : 'empty'
+  }
 
   const p = (id: string, stage: BuildStage, children: React.ReactNode) => (
     <Part
       key={id}
       id={id}
       selected={selected === id || hover === id}
-      dimmed={dim(stage)}
+      dimmed={fitted ? false : dim(stage)}
+      fit={fitOf(id)}
       onSelect={onSelect}
       onHover={setHover}
     >
@@ -80,11 +92,15 @@ export function Schematic({ build, activeStage, selected, onSelect, notes }: Pro
         role="img"
         aria-label="Microphone schematic"
       >
+        {quiet ? null : (
+          <>
         <StageBox x={8} y={16} w={190} h={268} title="Capsule" active={activeStage === 'capsule'} />
         <StageBox x={204} y={16} w={175} h={268} title="Polarisation" active={activeStage === 'polarisation'} />
         <StageBox x={385} y={16} w={265} h={268} title="Converter" active={activeStage === 'converter'} />
         <StageBox x={656} y={16} w={230} h={268} title="Output" active={activeStage === 'output'} />
         <StageBox x={892} y={16} w={220} h={268} title="Load" active={activeStage === 'load'} />
+          </>
+        )}
 
         {/* ---------------------------------------------------------- capsule */}
         {p(
@@ -405,7 +421,7 @@ export function Schematic({ build, activeStage, selected, onSelect, notes }: Pro
         ) : null}
       </svg>
 
-      <div className="flex min-h-[42px] items-center gap-2 border-t border-zinc-800 px-3 py-2 text-xs">
+      <div className={`flex min-h-[42px] items-center gap-2 border-t border-zinc-800 px-3 py-2 text-xs ${quiet ? 'hidden' : ''}`}>
         {info ? (
           <>
             <span className="shrink-0 font-medium text-copper-300">{info.label}</span>

@@ -1,4 +1,4 @@
-import { buildCircuit, STAGE_ORDER, type BuildSpec } from '../stages/build'
+import { buildCircuit, STAGE_ORDER, type BuildOptions, type BuildSpec } from '../stages/build'
 import { withOverrides, type Netlist, type StageId } from './netlist'
 import { MnaIndex, buildAcMatrix } from './stamps'
 import { CVector, luSolve } from './lu'
@@ -64,6 +64,13 @@ export interface AnalysisResult {
   /** Sensitivity at 1 kHz. */
   sensitivity: number
   sensitivityDbv: number
+  /**
+   * True when the circuit produces no output at all — an uncharged capsule, or
+   * a board too incomplete to have a signal path yet. Every level and noise
+   * figure is meaningless in that state, and the UI says so rather than
+   * printing a number derived from dividing by nothing.
+   */
+  silent: boolean
   /** Per-stage contribution in dB (normalised at 1 kHz). */
   stages: Record<string, Float64Array>
   /** The −3 dB point of each stage's own contribution, measured not calculated. */
@@ -167,12 +174,16 @@ function nearest(freqs: Float64Array, f: number): number {
 }
 
 /** Full analysis: operating point, response, per-stage attribution, noise, hum. */
-export function analyse(spec: BuildSpec, nPoints?: number): AnalysisResult {
+export interface AnalysisOptions extends BuildOptions {
+  nPoints?: number
+}
+
+export function analyse(spec: BuildSpec, opts: AnalysisOptions = {}): AnalysisResult {
   const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now()
-  const built = buildCircuit(spec)
+  const built = buildCircuit(spec, opts)
   const nl = built.netlist
   const caps = built.capsule
-  const freqs = frequencyGrid(nPoints)
+  const freqs = frequencyGrid(opts.nPoints)
 
   // --- operating point
   const op = operatingPoint(nl)
@@ -372,6 +383,7 @@ export function analyse(spec: BuildSpec, nPoints?: number): AnalysisResult {
     phase,
     sensitivity: ref,
     sensitivityDbv: 20 * Math.log10(Math.max(ref, 1e-12)),
+    silent: ref < 1e-9,
     stages,
     stageCorners,
     noisePsd,

@@ -12,6 +12,7 @@ import { explain, type Explanation } from '../explain/engine'
 import { decodeBuild, encodeBuild } from '../lib/url'
 import { presetById, PRESETS } from '../data/presets'
 import { LESSONS, applyMutation, lessonByNumber, type Mutation } from '../lessons/lessons'
+import { assemblySteps, type AssemblyStep } from '../lessons/assembly'
 import { FAULTS } from '../stages/faults'
 
 export type GraphTab = 'response' | 'noise' | 'op'
@@ -36,7 +37,16 @@ interface State {
   graphTab: GraphTab
   compareRef: string | null
 
-  mode: 'free' | 'lesson'
+  mode: 'free' | 'lesson' | 'assembly'
+  /** Assembly walkthrough: the ordered steps, and how far along we are. */
+  assembly: AssemblyStep[]
+  assemblyIndex: number
+  /**
+   * The board as it stood one part ago. Solved explicitly rather than reusing
+   * the last result, so "what fitting it did" is right even when you skip
+   * several steps with the progress bar.
+   */
+  stepBaseline: AnalysisResult | null
   lesson: number | null
   lessonStep: LessonStep
   quizAnswers: Record<string, number>
@@ -59,6 +69,8 @@ interface State {
   loadBuild: (build: BuildSpec, presetId?: string | null) => void
   startLesson: (n: number) => void
   exitLesson: () => void
+  startAssembly: (presetId?: string) => void
+  assemblyGoto: (index: number) => void
   setLessonStep: (s: LessonStep) => void
   loadListen: (side: 'a' | 'b' | null) => void
   loadClip: (m: Partial<Mutation>) => void
@@ -121,8 +133,12 @@ export const useStore = create<State>((set, get) => {
     if (!client) client = new SolverClient((m) => set({ error: m, solving: false }))
     const token = ++solveToken
     set({ solving: true })
+    // In the assembly walkthrough only the parts fitted so far are on the board,
+    // and the probe sits wherever a scope could usefully be clipped.
+    const { mode, assembly, assemblyIndex } = get()
+    const step = mode === 'assembly' ? assembly[assemblyIndex] : undefined
     client
-      .solve(nextBuild)
+      .solve(nextBuild, step ? { only: step.enabled, probe: step.probe } : {})
       .then((result) => {
         if (token !== solveToken) return
         const prevResult = get().result
@@ -150,6 +166,21 @@ export const useStore = create<State>((set, get) => {
 
   queueMicrotask(() => solve(init.build, null))
 
+  const firstVisit = (() => {
+    try {
+      return localStorage.getItem('miclab.visited') !== '1'
+    } catch {
+      return false
+    }
+  })()
+  try {
+    localStorage.setItem('miclab.visited', '1')
+  } catch {
+    /* private browsing — they simply get the walkthrough again */
+  }
+  // A shared link is a build somebody wants to see, so it opens the builder.
+  const startInAssembly = firstVisit && !window.location.search
+
   return {
     build: init.build,
     result: null,
@@ -163,7 +194,10 @@ export const useStore = create<State>((set, get) => {
     graphTab: 'response',
     compareRef: null,
 
-    mode: 'free',
+    mode: startInAssembly ? 'assembly' : 'free',
+    assembly: startInAssembly ? assemblySteps(init.build) : [],
+    assemblyIndex: 0,
+    stepBaseline: null,
     lesson: null,
     lessonStep: 'concept',
     quizAnswers: {},
@@ -250,7 +284,45 @@ export const useStore = create<State>((set, get) => {
       set({ selectedStage: stage })
     },
 
-    exitLesson: () => set({ mode: 'free', lesson: null, listenSide: null }),
+    exitLesson: () => {
+      set({ mode: 'free', lesson: null, listenSide: null })
+      solve(get().build, null)
+    },
+
+    startAssembly(presetId) {
+      const preset = presetId ? presetById(presetId) : undefined
+      const build = preset ? structuredClone(preset.build) : get().build
+      const steps = assemblySteps(build)
+      set({
+        mode: 'assembly',
+        assembly: steps,
+        assemblyIndex: 0,
+        stepBaseline: null,
+        build,
+        presetId: preset?.id ?? get().presetId,
+        prevResult: null,
+        explanation: null,
+      })
+      window.history.replaceState(null, '', `?${encodeBuild(build)}`)
+      solve(build, null)
+    },
+
+    async assemblyGoto(index) {
+      const { assembly, build } = get()
+      const next = Math.max(0, Math.min(index, assembly.length - 1))
+      set({ assemblyIndex: next, solving: true })
+      if (!client) client = new SolverClient((m) => set({ error: m, solving: false }))
+
+      // Solve the board one part ago first, so the comparison is against the
+      // step before this one rather than against wherever the user came from.
+      const before = assembly[next - 1]
+      const baseline = before
+        ? await client.solve(build, { only: before.enabled, probe: before.probe })
+        : null
+      if (get().assemblyIndex !== next) return
+      set({ stepBaseline: baseline })
+      solve(build, build)
+    },
     setLessonStep: (lessonStep) => set({ lessonStep }),
 
     loadListen(side) {

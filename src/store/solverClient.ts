@@ -8,6 +8,12 @@ import type { SolveRequest, SolveResponse } from '../solver/worker'
  * Dragging a slider fires a solve per frame; only the newest answer is useful,
  * so requests carry a sequence number and stale replies are dropped.
  */
+export interface SolveOptions {
+  /** Assembly walkthrough: only these elements are fitted so far. */
+  only?: Set<string>
+  probe?: [string, string]
+}
+
 export class SolverClient {
   private worker: Worker
   private seq = 0
@@ -31,11 +37,17 @@ export class SolverClient {
     }
   }
 
-  solve(build: BuildSpec): Promise<AnalysisResult> {
+  solve(build: BuildSpec, opts: SolveOptions = {}): Promise<AnalysisResult> {
     const seq = ++this.seq
     return new Promise((resolve) => {
       this.pending.set(seq, resolve)
-      const msg: SolveRequest = { type: 'solve', seq, build }
+      const msg: SolveRequest = {
+        type: 'solve',
+        seq,
+        build,
+        only: opts.only ? [...opts.only] : undefined,
+        probe: opts.probe,
+      }
       this.worker.postMessage(msg)
     })
   }

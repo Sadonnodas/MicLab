@@ -15,6 +15,9 @@ interface Props {
   reference?: ReferenceMic | null
   activeStage: string
   showStages: boolean
+  /** The board one part ago, drawn faintly behind the current curve. */
+  before?: AnalysisResult | null
+  beforeLabel?: string
 }
 
 const F_LO = 20
@@ -45,7 +48,7 @@ const GRID_DB = [-20, -15, -10, -5, 0, 5, 10, 15, 20]
 
 const fmtF = (f: number) => (f >= 1000 ? `${f / 1000}k` : String(f))
 
-export function ResponseGraph({ result, reference, activeStage, showStages }: Props) {
+export function ResponseGraph({ result, reference, activeStage, showStages, before, beforeLabel }: Props) {
   const [probe, setProbe] = useState<number | null>(null)
 
   const x = (f: number) =>
@@ -70,6 +73,11 @@ export function ResponseGraph({ result, reference, activeStage, showStages }: Pr
       .filter((s) => s.significant)
   }, [result, showStages])
 
+  const beforePath = useMemo(
+    () => (before && !before.silent ? curve(before.freqs, before.mag, x, y) : null),
+    [before],
+  )
+
   const refPath = useMemo(() => {
     if (!reference) return null
     const freqs = Float64Array.from(reference.freqs)
@@ -78,6 +86,20 @@ export function ResponseGraph({ result, reference, activeStage, showStages }: Pr
   }, [reference])
 
   const probeF = probe !== null ? Math.min(Math.max(fAt(probe), F_LO), F_HI) : null
+
+  // A circuit with no output has no response to draw, and a flat line at 0 dB
+  // would read as a perfect one. Say what is actually going on instead.
+  if (result.silent) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-1 text-center">
+        <p className="text-sm text-zinc-400">No signal to plot yet</p>
+        <p className="max-w-xs text-[11.5px] leading-relaxed text-zinc-600">
+          This board produces no output at all, so there is no frequency response to draw. The graph
+          appears as soon as there is something to measure.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -132,6 +154,17 @@ export function ResponseGraph({ result, reference, activeStage, showStages }: Pr
           <path d={refPath} fill="none" stroke="#a1a1aa" strokeWidth={1.4} strokeDasharray="2 4" opacity={0.8} />
         ) : null}
 
+        {beforePath ? (
+          <path
+            d={beforePath}
+            fill="none"
+            stroke="#71717a"
+            strokeWidth={1.6}
+            strokeDasharray="5 4"
+            strokeLinejoin="round"
+          />
+        ) : null}
+
         <path d={path} fill="none" stroke="var(--color-copper-400)" strokeWidth={2.2} strokeLinejoin="round" />
 
         {probeF !== null ? (
@@ -158,6 +191,12 @@ export function ResponseGraph({ result, reference, activeStage, showStages }: Pr
             </span>
           </span>
         ))}
+        {beforePath ? (
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block h-0.5 w-4 bg-zinc-500" />
+            <span className="text-zinc-500">{beforeLabel ?? 'before'}</span>
+          </span>
+        ) : null}
         {reference ? (
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-0.5 w-4 bg-zinc-400" />

@@ -13,6 +13,10 @@ export interface SolveRequest {
   type: 'solve'
   seq: number
   build: BuildSpec
+  /** Assembly walkthrough: only these element ids are on the board yet. */
+  only?: string[]
+  /** Where to measure. Defaults to the microphone's output. */
+  probe?: [string, string]
 }
 
 export interface SolveResponse {
@@ -23,9 +27,9 @@ export interface SolveResponse {
 }
 
 self.onmessage = (e: MessageEvent<SolveRequest>) => {
-  const { seq, build } = e.data
+  const { seq, build, only, probe } = e.data
   try {
-    const result = analyse(build)
+    const result = analyse(build, { only: only ? new Set(only) : undefined, probe })
     const msg: SolveResponse = { type: 'result', seq, result }
     self.postMessage(msg)
   } catch (err) {

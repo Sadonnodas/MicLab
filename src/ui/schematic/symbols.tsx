@@ -16,28 +16,38 @@ export interface PartProps {
   label?: string
   selected?: boolean
   dimmed?: boolean
+  /**
+   * Assembly walkthrough. 'fitted' is on the board, 'new' has just gone in and
+   * glows, 'empty' is a pad waiting for a part and is drawn as a faint outline.
+   */
+  fit?: 'fitted' | 'new' | 'empty'
   onSelect?: (id: string) => void
   onHover?: (id: string | null) => void
   children: ReactNode
 }
 
-export function Part({ id, selected, dimmed, onSelect, onHover, children }: PartProps) {
+export function Part({ id, selected, dimmed, fit = 'fitted', onSelect, onHover, children }: PartProps) {
+  const empty = fit === 'empty'
+  const isNew = fit === 'new'
   return (
     <g
       data-element-id={id}
-      className={`cursor-pointer transition-opacity ${dimmed ? 'opacity-30' : 'opacity-100'}`}
+      className={`transition-all duration-300 ${empty ? 'opacity-20' : dimmed ? 'opacity-40' : 'opacity-100'} ${
+        empty ? '' : 'cursor-pointer'
+      }`}
       onClick={(e) => {
         e.stopPropagation()
-        onSelect?.(id)
+        if (!empty) onSelect?.(id)
       }}
-      onMouseEnter={() => onHover?.(id)}
+      onMouseEnter={() => !empty && onHover?.(id)}
       onMouseLeave={() => onHover?.(null)}
-      stroke={selected ? 'var(--color-copper-300)' : '#a1a1aa'}
+      stroke={isNew ? 'var(--color-copper-300)' : selected ? 'var(--color-copper-300)' : '#a1a1aa'}
       fill="none"
-      strokeWidth={selected ? 2 : 1.4}
+      strokeWidth={isNew ? 2.4 : selected ? 2 : 1.4}
       strokeLinecap="round"
+      strokeDasharray={empty ? '3 3' : undefined}
+      style={isNew ? { filter: 'drop-shadow(0 0 5px rgba(234,171,124,0.65))' } : undefined}
     >
-      {/* invisible fat hit area so small parts are still clickable */}
       {children}
     </g>
   )

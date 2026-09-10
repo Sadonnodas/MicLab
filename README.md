@@ -27,6 +27,14 @@ npm run dev
 
 ## What is in it
 
+- **Walkthrough** — the way in, and where a first visit lands. A board is
+  populated one part at a time: the schematic shows empty pads for what is not
+  fitted yet, each part gets a screen explaining what it is for, and the graph
+  and the numbers show what fitting it actually did. It starts with a capsule
+  that produces nothing at all, because an uncharged capacitor does not, and
+  that is the reason the next part exists. The steps are derived from whatever
+  build you are holding, so any preset — or anything you design yourself — can
+  be assembled.
 - **Free build** — four stages, thirteen topologies between them, every
   component value editable, live graph and live audio, and an explanation panel
   that narrates what you just changed and why it did what it did.
@@ -55,7 +63,7 @@ src/
   explain/    The explanation engine: diffs derived quantities, picks the ones
               that moved most, renders their templates.
   ui/         Three panes and a transport bar.
-  lessons/    Lesson content and quizzes.
+  lessons/    Lesson content, quizzes, and the assembly walkthrough.
   data/       Presets, reference curves.
 docs/
   SPEC.md     The handoff specification this was built from.
@@ -68,7 +76,7 @@ docs/
 ## Verification
 
 ```bash
-npm test          # 54 tests
+npm test          # 78 tests
 npm run typecheck
 npm run build
 ```

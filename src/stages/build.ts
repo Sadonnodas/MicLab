@@ -94,8 +94,20 @@ const EMPTY_CAPSULE: CapsuleSpec = {
   Nac: 0,
 }
 
+export interface BuildOptions {
+  /**
+   * Keep only these elements. Used by the assembly walkthrough, which shows a
+   * board being populated one part at a time: node numbering is unaffected, so
+   * the missing parts simply leave their nodes floating, and the solver's gmin
+   * holds those at zero volts exactly as an unpopulated pad would sit.
+   */
+  only?: Set<string>
+  /** Where to measure. Defaults to the microphone's own output. */
+  probe?: [string, string]
+}
+
 /** Turn a build specification into a netlist the solver can chew on. */
-export function buildCircuit(spec: BuildSpec): BuiltCircuit {
+export function buildCircuit(spec: BuildSpec, opts: BuildOptions = {}): BuiltCircuit {
   const variants: Record<StageId, Variant> = {
     capsule: variantFor('capsule', spec.capsule.variant),
     polarisation: variantFor('polarisation', spec.polarisation.variant),
@@ -146,7 +158,12 @@ export function buildCircuit(spec: BuildSpec): BuiltCircuit {
     fault.apply(b, fv, ctx, faultOverrides)
   }
 
-  const netlist = withOverrides(b.build('loadp', 'loadn'), faultOverrides)
+  const [plus, minus] = opts.probe ?? ['loadp', 'loadn']
+  let netlist = withOverrides(b.build(plus, minus), faultOverrides)
+  if (opts.only) {
+    const only = opts.only
+    netlist = { ...netlist, elements: netlist.elements.filter((e) => only.has(e.id)) }
+  }
   return {
     netlist,
     capsule: ctx.capsule,
