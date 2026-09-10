@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The capsule symbol from the schematic: a fixed backplate and a diaphragm
+       that moves, which is the whole microphone in two strokes. -->
+  <rect width="32" height="32" rx="7" fill="#18181b"/>
+  <g stroke="#e08a52" stroke-width="2.1" fill="none" stroke-linecap="round">
+    <line x1="13" y1="8" x2="13" y2="24"/>
+    <path d="M19 8 Q 23.5 16 19 24"/>
+    <line x1="13" y1="16" x2="5" y2="16"/>
+    <line x1="20.5" y1="16" x2="27" y2="16"/>
+  </g>
+</svg>

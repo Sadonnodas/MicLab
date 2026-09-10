@@ -1,0 +1,14 @@
+{
+  "id": "textbook-u87",
+  "name": "Textbook U87",
+  "description": "The reference build: K67 capsule, diaphragm-polarised, common-source with de-emphasis, transformerless output into 1.5 kΩ. Every value is a stated textbook figure, and this is the build the solver is verified against.",
+  "verified": true,
+  "stages": {
+    "capsule": { "variant": "k67", "values": {} },
+    "polarisation": { "variant": "diaphragm", "values": {} },
+    "converter": { "variant": "cs-deemph", "values": {} },
+    "output": { "variant": "transformerless", "values": {} },
+    "load": { "variant": "standard", "values": {} }
+  },
+  "faults": []
+}

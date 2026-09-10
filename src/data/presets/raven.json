@@ -1,0 +1,69 @@
+{
+  "id": "raven",
+  "name": "Raven",
+  "description": "Sadon's transformer DIY large-diaphragm build: U247-style board, CY002 (K67-type) capsule, backplate-polarised, no de-emphasis, 7:1 output transformer. Same capsule as Blue Jay \u2014 listen to how different two boards make it.",
+  "verified": false,
+  "hardware": "DIY U247-style board with output transformer, CY002 capsule",
+  "unverified": [
+    "V_pol",
+    "R_pol",
+    "jfet",
+    "R_s",
+    "C_s",
+    "R_d",
+    "ratio",
+    "L_p",
+    "R_p",
+    "R_sec",
+    "C_w",
+    "C_out",
+    "R_drv",
+    "C_bypass"
+  ],
+  "stages": {
+    "capsule": {
+      "variant": "k67",
+      "values": {}
+    },
+    "polarisation": {
+      "variant": "backplate",
+      "values": {
+        "V_pol": 60,
+        "R_pol": 1000000000.0,
+        "C_bypass": 1e-08
+      }
+    },
+    "converter": {
+      "variant": "cs-plain",
+      "values": {
+        "jfet": "2SK170",
+        "R_gate": 1000000000.0,
+        "R_s": 1500,
+        "C_s": 0.0001,
+        "R_d": 4700,
+        "C_stray": 5e-12,
+        "V_dd": 12
+      }
+    },
+    "output": {
+      "variant": "transformer",
+      "values": {
+        "ratio": 7,
+        "R_drv": 100,
+        "L_p": 20,
+        "R_p": 400,
+        "R_sec": 30,
+        "C_w": 2e-10,
+        "k": 0.999,
+        "C_out": 1e-05
+      }
+    },
+    "load": {
+      "variant": "standard",
+      "values": {
+        "R_preamp": 1500
+      }
+    }
+  },
+  "faults": []
+}

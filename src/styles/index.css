@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/*
+  Mic Lab shares Synthwise's family look — same dark zinc surfaces, same type,
+  same spacing scale — with copper instead of violet as the accent, because
+  copper is what a PCB trace is made of.
+*/
+@theme {
+  --color-copper-50: #fdf6ef;
+  --color-copper-100: #fae8d7;
+  --color-copper-200: #f3cdae;
+  --color-copper-300: #eaab7c;
+  --color-copper-400: #e08a52;
+  --color-copper-500: #d4703a;
+  --color-copper-600: #b8562c;
+  --color-copper-700: #984227;
+  --color-copper-800: #7b3725;
+  --color-copper-900: #652f21;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background-color: #09090b;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Themed scrollbars, matching Synthwise's. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #3f3f46;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-copper-400);
+  background-clip: content-box;
+}
+
+/* Range inputs: a thin track with a copper handle, consistent across engines. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px;
+  background: #3f3f46;
+  border-radius: 2px;
+}
+input[type="range"]::-moz-range-track {
+  height: 3px;
+  background: #3f3f46;
+  border-radius: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5.5px;
+  border-radius: 9999px;
+  background: var(--color-copper-400);
+  border: 2px solid #18181b;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--color-copper-400);
+  border: 2px solid #18181b;
+}
+input[type="range"]:disabled::-webkit-slider-thumb {
+  background: #52525b;
+}
+input[type="range"]:disabled::-moz-range-thumb {
+  background: #52525b;
+}
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--color-copper-300);
+  outline-offset: 2px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

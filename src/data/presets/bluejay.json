@@ -1,0 +1,62 @@
+{
+  "id": "bluejay",
+  "name": "Blue Jay",
+  "description": "Sadon's transformerless DIY large-diaphragm build: U87-style board, 797AUDIO CY002 (K67-type) capsule, diaphragm-polarised, de-emphasised. Values are textbook defaults until the board is measured.",
+  "verified": false,
+  "hardware": "DIY U87-style board, CY002 capsule",
+  "unverified": [
+    "V_pol",
+    "R_pol",
+    "C_couple",
+    "jfet",
+    "R_s",
+    "C_s",
+    "R_d",
+    "R_fb",
+    "C_fb",
+    "C_out",
+    "R_out"
+  ],
+  "stages": {
+    "capsule": {
+      "variant": "k67",
+      "values": {}
+    },
+    "polarisation": {
+      "variant": "diaphragm",
+      "values": {
+        "V_pol": 60,
+        "R_pol": 1000000000.0,
+        "C_couple": 1e-09
+      }
+    },
+    "converter": {
+      "variant": "cs-deemph",
+      "values": {
+        "jfet": "2SK170",
+        "R_gate": 1000000000.0,
+        "R_s": 1500,
+        "C_s": 0.0001,
+        "R_d": 4700,
+        "R_fb": 1000,
+        "C_fb": 2.2e-08,
+        "C_stray": 5e-12,
+        "V_dd": 12
+      }
+    },
+    "output": {
+      "variant": "transformerless",
+      "values": {
+        "C_out": 4.7e-05,
+        "R_out": 47
+      }
+    },
+    "load": {
+      "variant": "standard",
+      "values": {
+        "R_preamp": 1500
+      }
+    }
+  },
+  "faults": []
+}

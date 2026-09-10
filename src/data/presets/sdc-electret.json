@@ -1,0 +1,16 @@
+{
+  "id": "sdc-electret",
+  "name": "SDC electret",
+  "description": "Sadon's small-diaphragm build: an electret capsule on a prewired board in an e614-clone body. No polarisation supply at all — useful precisely because of that contrast.",
+  "verified": false,
+  "hardware": "electret capsule + prewired board, e614-clone body",
+  "unverified": ["jfet", "R_s", "C_out", "R_out"],
+  "stages": {
+    "capsule": { "variant": "electret", "values": {} },
+    "polarisation": { "variant": "electret", "values": {} },
+    "converter": { "variant": "follower", "values": { "jfet": "J305", "R_gate": 1e9, "R_s": 2200, "C_stray": 3e-12, "V_dd": 9 } },
+    "output": { "variant": "unbalanced", "values": { "C_out": 10e-6, "R_out": 1000 } },
+    "load": { "variant": "standard", "values": { "R_preamp": 10000 } }
+  },
+  "faults": []
+}

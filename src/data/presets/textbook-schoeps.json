@@ -1,0 +1,14 @@
+{
+  "id": "textbook-schoeps",
+  "name": "Textbook Schoeps",
+  "description": "Small-diaphragm true condenser: bootstrapped source follower into a transformerless balanced output. Almost no voltage gain anywhere — the whole design is about not disturbing the capsule.",
+  "verified": true,
+  "stages": {
+    "capsule": { "variant": "electret", "values": { "Nac": 12 } },
+    "polarisation": { "variant": "diaphragm", "values": { "V_pol": 60, "R_pol": 1e9, "C_couple": 1e-9 } },
+    "converter": { "variant": "bootstrap", "values": { "jfet": "2SK170", "R_gate": 1e9, "R_gate2": 10e6, "C_boot": 1e-6, "R_s": 2200, "C_stray": 3e-12, "V_dd": 12 } },
+    "output": { "variant": "transformerless", "values": { "C_out": 47e-6, "R_out": 47 } },
+    "load": { "variant": "standard", "values": { "R_preamp": 1500 } }
+  },
+  "faults": []
+}

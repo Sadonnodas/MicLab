@@ -1,0 +1,14 @@
+{
+  "id": "blank",
+  "name": "Blank slate",
+  "description": "An ideal flat capsule with every stage at its most transparent setting. Nothing here shapes the sound but the electronics — start from this when you want to hear what one component does and nothing else.",
+  "verified": true,
+  "stages": {
+    "capsule": { "variant": "flat", "values": {} },
+    "polarisation": { "variant": "diaphragm", "values": { "V_pol": 60, "R_pol": 1e9, "C_couple": 10e-9 } },
+    "converter": { "variant": "follower", "values": { "jfet": "2SK170", "R_gate": 1e9, "R_s": 2200, "C_stray": 1e-12, "V_dd": 12 } },
+    "output": { "variant": "transformerless", "values": { "C_out": 100e-6, "R_out": 47 } },
+    "load": { "variant": "standard", "values": { "R_preamp": 10000, "cable_m": 1 } }
+  },
+  "faults": []
+}
