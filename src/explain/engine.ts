@@ -41,7 +41,14 @@ const STAGE_NAMES: Record<string, string> = {
 
 const STAGES: BuildStage[] = ['capsule', 'polarisation', 'converter', 'output', 'load']
 
-const fmt = (d: Derived, v: number): string => (d.format ? d.format(v) : `${v.toPrecision(3)} ${d.unit}`)
+/**
+ * A measured stage corner of zero means the solver never saw this stage cost
+ * 3 dB anywhere on the grid — so say that, rather than "0 Hz".
+ */
+const fmt = (d: Derived, v: number): string => {
+  if (d.fromSolver === 'stageCorner' && v === 0) return 'below 5 Hz'
+  return d.format ? d.format(v) : `${v.toPrecision(3)} ${d.unit}`
+}
 
 function paramLabel(spec: BuildSpec, stage: BuildStage, key: string): string {
   const variant = variantFor(stage, spec[stage].variant)
@@ -200,7 +207,13 @@ export function explain({ prevBuild, nextBuild, prevResult, nextResult }: Explai
     .map(([key, d]) => {
       const before = prevDerived[key]
       if (!before || !isFinite(before.value) || !isFinite(d.value)) return null
-      const rel = Math.abs(Math.log(Math.abs(d.value) + 1e-30) - Math.log(Math.abs(before.value) + 1e-30))
+      // Ratio of change, in log terms, so a corner moving 3 Hz → 30 Hz counts
+      // the same as 30 → 300. Clamped, because a quantity coming off zero would
+      // otherwise score infinitely and crowd out everything else.
+      const rel = Math.min(
+        Math.abs(Math.log(Math.abs(d.value) + 1e-30) - Math.log(Math.abs(before.value) + 1e-30)),
+        8,
+      )
       const abs = Math.abs(d.value - before.value)
       if (rel < 0.005 && abs < 1e-9) return null
       const stageBoost = touched.includes(key.split('.')[0] as BuildStage) ? 3 : 1
