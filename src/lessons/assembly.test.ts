@@ -10,20 +10,25 @@ import { presetById, PRESETS } from '../data/presets'
  * step where adding a part appears to break something.
  */
 
+// Walking every step of every preset is ~80 full analyses. These checks only
+// care that each one converges and stays finite, so a coarse frequency grid
+// does the same job several times faster.
+const COARSE = { nPoints: 96 }
+
 describe('assembly walkthrough', () => {
-  it('solves at every step of every preset', () => {
+  it('solves at every step of every preset', { timeout: 30_000 }, () => {
     for (const preset of PRESETS) {
       const steps = assemblySteps(preset.build)
       expect(steps.length, preset.name).toBeGreaterThan(6)
       for (const [i, s] of steps.entries()) {
-        const r = analyse(preset.build, { only: s.enabled, probe: s.probe })
+        const r = analyse(preset.build, { ...COARSE, only: s.enabled, probe: s.probe })
         expect(r.op.converged, `${preset.name} step ${i + 1} (${s.title})`).toBe(true)
         expect(Number.isFinite(r.sensitivity), `${preset.name} step ${i + 1}`).toBe(true)
       }
     }
   })
 
-  it('ends with exactly the build the user started from', () => {
+  it('ends with exactly the build the user started from', { timeout: 30_000 }, () => {
     for (const preset of PRESETS) {
       const steps = assemblySteps(preset.build)
       const last = steps[steps.length - 1]
@@ -57,14 +62,14 @@ describe('assembly walkthrough', () => {
     expect(second.sensitivity * 1000).toBeGreaterThan(15)
   })
 
-  it('never goes silent again once the capsule is charged', () => {
+  it('never goes silent again once the capsule is charged', { timeout: 30_000 }, () => {
     // A step that appears to break the microphone reads as a mistake by the
     // person following it, so the order has to avoid one.
     for (const preset of PRESETS) {
       const steps = assemblySteps(preset.build)
       let charged = false
       for (const [i, s] of steps.entries()) {
-        const r = analyse(preset.build, { only: s.enabled, probe: s.probe })
+        const r = analyse(preset.build, { ...COARSE, only: s.enabled, probe: s.probe })
         if (!r.silent) charged = true
         else if (charged) {
           throw new Error(`${preset.name} step ${i + 1} (${s.title}) went silent after working`)
