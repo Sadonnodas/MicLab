@@ -33,9 +33,9 @@ export const PARTS: Record<string, PartInfo> = {
   'capsule.C': {
     order: 10,
     title: 'The capsule',
-    what: 'Two plates a few tens of microns apart: a stretched gold-sputtered membrane, and a drilled brass backplate. Sound moves the membrane, the gap changes, the capacitance changes. That is the entire transducer — and at this point it is only a capacitor.',
+    what: 'Two thin metal plates with a gap between them, about a hundredth of a millimetre wide. One is a film stretched like a drum skin, light enough that sound can push it about — the diaphragm. The other is a solid disc drilled with holes — the backplate.\n\nTwo plates with a gap is a capacitor: a component that can hold a quantity of electrical charge, and where the size of the gap decides how much it holds. So when sound moves the diaphragm, it changes the gap, and changing the gap changes how much charge the capsule can hold.\n\nThat is the whole trick, and it is the entire transducer — the part that turns sound into electricity. Everything else in the microphone exists to read it without spoiling it.',
     expect:
-      'Nothing. Press play and you will hear silence, and the numbers will say there is no output at all. A capacitor with no charge on it produces no signal, however hard you shout at it. That is not a fault, it is the whole reason the next part exists.',
+      'Nothing at all. Press play and you will hear silence, and the numbers will say there is no output. A capacitor with no charge on it produces no signal, however hard you shout at it — the gap is changing, but there is nothing there to change. That is not a fault. It is the whole reason the next part exists.',
     with: ['capsule.E', 'pol.backGnd'],
   },
   'capsule.E': { order: 10, title: '', what: '', expect: '', silent: true },
@@ -45,17 +45,17 @@ export const PARTS: Record<string, PartInfo> = {
   'pol.V': {
     order: 20,
     title: 'The polarisation supply',
-    what: 'Sixty volts of DC, generated inside the microphone by a voltage multiplier running off phantom power. Its job is to put a fixed charge on the capsule. Hold that charge still and let sound change the capacitance, and the voltage has to move to compensate — that moving voltage is the signal.\n\nIt arrives with the gigaohm resistor that feeds it to the capsule, and — on a board that polarises the backplate — with the capacitor that holds that backplate at audio ground. All three are one job: put charge on, and then get out of the way.',
+    what: 'Sixty volts of DC — a steady, unwavering voltage, made inside the microphone from the phantom power the preamp sends up the cable. Its job is to put a fixed quantity of charge onto the capsule and leave it there.\n\nHere is why that turns the capsule into a microphone. Charge, voltage and capacitance are tied together: if the charge stays the same and the capacitance changes, the voltage has to change to make up for it. Sound moves the diaphragm, that changes the capacitance, and the voltage across the capsule moves in step. That moving voltage is the signal.\n\nIt is fitted along with the gigaohm resistor that feeds the charge in — an enormous resistance, for reasons that become clear shortly — and, on a board that charges the backplate, the capacitor that keeps that backplate steady. All three do one job between them: put the charge on, then get out of the way.',
     expect:
-      'The microphone comes alive. You now have an output, and its shape is the capsule’s own: flat through the middle, with the K67 lift and the diaphragm resonance at the top.',
+      'The microphone comes alive. There is an output now, and its shape is the capsule’s own doing: even through the middle, rising towards the top where the stretched diaphragm has a resonance of its own.',
     with: ['pol.R_pol', 'pol.C_bypass'],
   },
   'pol.R_pol': {
     order: 21,
     title: 'The polarisation resistor',
-    what: 'One gigaohm — physically the strangest component in the microphone. It has to pass DC to charge the capsule, and pass nothing at all at audio frequencies, because any charge that escapes through it during a cycle of sound is signal you never hear.',
+    what: 'One gigaohm — a thousand million ohms, and physically the strangest component in the microphone. It has a contradictory job: pass electricity slowly enough to charge the capsule, and pass none at all at the speed sound wiggles, because any charge that escapes through it while a sound is happening is signal you never hear.',
     expect:
-      'With the capsule’s 55 pF it makes a high-pass filter. At a gigaohm the corner is far below anything audible. Drag it down later and watch the bass leave.',
+      'Together with the capsule it forms a high-pass filter — something that lets high notes through and holds back low ones. At a gigaohm its corner is far below anything you can hear. Make it smaller later and watch the bass leave.',
     silent: true,
   },
   // Fitted with the polarisation supply, because a backplate-polarised board
@@ -66,33 +66,33 @@ export const PARTS: Record<string, PartInfo> = {
   'pol.C_couple': {
     order: 25,
     title: 'The coupling capacitor',
-    what: 'The diaphragm is sitting at 60 V and the transistor’s gate needs to be near zero, so this capacitor passes the audio and blocks the DC.',
+    what: 'The diaphragm is now sitting at 60 volts, and the transistor that comes next needs its input to be near zero or it will not work. A capacitor solves this exactly: it cannot pass a steady voltage — the gap is in the way — but it passes a wobbling one perfectly well. So the 60 volts stops here and the audio carries on.',
     expect:
-      'A second high-pass corner, far below the audible band. It also forms a capacitive divider with the capsule — 1 nF against 55 pF costs about half a decibel, but shrink it to 100 pF and you throw away nearly four.',
+      'Almost nothing, which is the idea. It does add a second high-pass corner, but far below anything audible. It also shares the signal with the capsule in proportion to their sizes, so it wants to be much the larger of the two: 1 nF against the capsule’s 55 pF costs about half a decibel, but shrink it to 100 pF and you throw away nearly four.',
   },
 
   // -------------------------------------------------------------- converter
   'conv.V_dd': {
     order: 30,
     title: 'The supply rail',
-    what: 'Twelve volts, again derived from phantom power, to run the transistor. Note how little the microphone asks for: a fraction of a milliamp.',
+    what: 'Twelve volts, again taken from the phantom power on the cable, to run the transistor that is about to arrive. Note how little a microphone asks for: less than a thousandth of an amp.',
     expect:
-      'Nothing yet — there is nothing connected to it. This is one of those steps where the honest answer is that you are preparing for the next part.',
+      'Nothing yet, because nothing is connected to it. This is one of those steps where the honest answer is that you are getting ready for the next part.',
     with: ['conv.R_d'],
   },
   'conv.R_d': {
     order: 31,
     title: 'The drain resistor',
-    what: 'The transistor will produce a current that varies with the sound. This resistor is what turns that current back into a voltage — gain, in one component.',
+    what: 'The transistor is about to turn the sound into a varying current. This resistor is what turns that current back into a voltage — which is where the gain comes from.',
     expect: 'Still nothing audible. The transistor is next.',
     silent: true,
   },
   'conv.R_gate': {
     order: 33,
     title: 'The gate resistor',
-    what: 'Another gigaohm, holding the transistor’s gate at a defined DC voltage. It has to be enormous for exactly the same reason the polarisation resistor does: anything smaller drains the signal away before the transistor can see it.',
+    what: 'Another gigaohm. The transistor’s control leg — its gate — needs to sit at a known voltage rather than drifting wherever it likes, and this resistor is what holds it there. It has to be enormous for the same reason the last one did: anything smaller would quietly drain the signal away before the transistor got a look at it.',
     expect:
-      'It sets a low-frequency corner of its own, working against the capsule. On a backplate-polarised board this — not the polarisation resistor — is what decides how much bass the microphone has.',
+      'It adds a corner of its own at the low end, working against the capsule. On a board that charges the backplate rather than the diaphragm, this resistor — not the polarisation one — is what decides how much bass the microphone has.',
   },
   'conv.R_gate2': {
     order: 34,
@@ -109,38 +109,38 @@ export const PARTS: Record<string, PartInfo> = {
   'conv.J': {
     order: 36,
     title: 'The JFET',
-    what: 'The impedance converter, and the reason the microphone works at all. At 20 Hz the capsule is a 145 megohm source — nothing you can buy could look at it without loading it into silence. This transistor’s gate draws picoamps, so it can watch that voltage without disturbing it, and reproduce it somewhere useful.\n\nIt arrives with its source resistor, because a transistor with nowhere for its current to go is not a circuit.',
+    what: 'The reason the microphone works at all. The capsule can produce a voltage, but it can supply almost no electricity behind it — connect anything ordinary and the signal collapses to nothing, the way a whisper does if you talk over it.\n\nA JFET is a transistor whose control leg draws practically no electricity: picoamps, which is a millionth of a millionth of an amp. So it can watch the capsule’s voltage without disturbing it, and produce a copy of it somewhere that can actually drive a cable. That job has a name — impedance conversion — and it is what the inside of every condenser microphone is mostly for.\n\nIt arrives with its source resistor, because a transistor with nowhere for its current to go is not a circuit.',
     expect:
-      'A big jump in level, and a loss you did not ask for: the transistor’s own gate capacitance now sits across the capsule and takes a few decibels straight off the top of the signal. Look at the operating point to see where it settled.',
+      'A big jump in level — and a loss you did not ask for. The transistor’s own legs behave a little like a small capacitor sitting across the capsule, and that quietly takes a few decibels off the signal before anything has amplified it.',
     with: ['conv.R_s'],
   },
   'conv.R_s': {
     order: 36,
     title: 'The source resistor',
-    what: 'Sets the bias. Drain current flowing through it lifts the source above the gate, which is exactly the negative gate-to-source voltage this transistor wants — so the stage sets its own operating point, and keeps doing so despite JFETs varying wildly from one to the next.',
+    what: 'Sets the bias — the steady conditions the transistor sits at between sounds. Current flowing through this resistor lifts one leg of the transistor above the other by exactly the amount it wants, so the circuit arranges its own working point and keeps arranging it even though no two JFETs are alike.',
     expect: '',
     silent: true,
   },
   'conv.C_s': {
     order: 38,
     title: 'The source bypass capacitor',
-    what: 'The source resistor is negative feedback: when the current rises the source rises with it, pushing the current back down. That costs a lot of gain. This capacitor shorts the resistor out for audio only, so the DC bias stays and the gain comes back.',
+    what: 'The source resistor is doing something helpful and something annoying at the same time. Helpful: when the current rises, the voltage across it rises too and pushes the current back down, which keeps everything steady. That is negative feedback. Annoying: it does the same thing to the signal, so most of the gain disappears.\n\nA capacitor fixes it. Put one across the resistor and it bypasses the resistor for the wobbling signal while leaving it in place for the steady conditions. The steadiness stays; the gain comes back.',
     expect:
-      'A large jump in level. Its corner with the source resistor decides where that gain arrives — undersize it and you have accidentally designed a bass roll-off.',
+      'A large jump in level. Its corner with the source resistor decides from which frequency upwards that gain arrives — make it too small and you have accidentally designed a microphone with no bass.',
   },
   'conv.C_stray': {
     order: 39,
     title: 'Stray capacitance (you did not fit this)',
-    what: 'Nobody solders this on. It is the gate track, the pad, the solder blob, the transistor’s own leads and whatever moisture is on the board — all of it in parallel with the capsule, all of it forming a divider against its 55 pF.',
+    what: 'Nobody solders this on. Any two pieces of metal near each other behave a little like a capacitor, so the track on the board, the solder joint, the transistor’s legs and whatever moisture is in the air all add up to a small unwanted capacitor sitting right across the capsule.\n\nAnd because the capsule is itself so tiny — 55 pF — even a few pF of accidental company is enough to share the signal and take a piece of it.',
     expect:
-      'A few tenths of a decibel gone, evenly, at every frequency. It never comes back: the noise after the divider is unchanged, so this is signal-to-noise thrown away. It is why the transistor sits millimetres from the capsule and why the gate track is as short as the layout allows.',
+      'A few tenths of a decibel gone, evenly, at every frequency. It never comes back: the hiss that comes afterwards is unchanged, so this is signal thrown away for nothing. It is why the transistor sits millimetres from the capsule, and why that little track is kept as short as it possibly can be.',
   },
   'conv.R_fb': {
     order: 41,
     title: 'The de-emphasis network',
-    what: 'A resistor and a capacitor in series from the drain back to the source. The capacitor’s impedance falls with frequency, so the higher you go the more this network loads the drain and the more gain the stage gives away — a shelf, pulled down exactly where the K67 capsule has too much.\n\nNote where it returns: the source, not the gate. Hang a resistor off a hundred-megohm node and you have connected a noise generator to it.',
+    what: 'This capsule is bright — it has more top end than most people want. Two components take it back off.\n\nA capacitor passes high notes more easily than low ones. So a resistor and a capacitor together, wired from the transistor’s output back towards its input, do almost nothing at the bottom and progressively rob the circuit of gain towards the top. The result is a gentle lid on the treble, in exactly the region the capsule was overdoing it.\n\nWhere it connects back to matters enormously, and the answer is a low-impedance point rather than the gate. Attach a resistor to that hundred-megohm gate and you have wired a hiss generator directly to the most sensitive spot in the microphone.',
     expect:
-      'The top end comes down. This is the single difference between a U87-style board and a U47-style one, with the same capsule in front of both.',
+      'The top end comes down. This pair of components is the single difference between a U87-style board and a U47-style one, with exactly the same capsule in front of both.',
     with: ['conv.C_fb'],
   },
   'conv.C_fb': { order: 41, title: '', what: '', expect: '', silent: true },
@@ -149,22 +149,22 @@ export const PARTS: Record<string, PartInfo> = {
   'out.drv': {
     order: 50,
     title: 'The driver stage',
-    what: 'A buffer with a low output impedance, sitting between the transistor and the transformer. It looks like a component you could leave out, and it is the difference between a microphone with bass and one without.',
+    what: 'A stage that adds no gain at all and simply repeats the signal with more electrical muscle behind it. It sits between the transistor and the transformer, and it looks like the sort of thing you could leave out to save a component.\n\nIt is the difference between a microphone with bass and one without, for a reason the next two steps make visible.',
     expect:
-      'Nothing audible yet — but when the transformer goes in, compare it against the “straight from the drain” option and listen to the bottom disappear.',
+      'Nothing audible yet. When the transformer goes in, switch this between “buffered” and “straight from the drain” in free build and listen to the bottom end disappear.',
   },
   'out.C_out': {
     order: 52,
     title: 'The output coupling capacitor',
-    what: 'Blocks the stage’s DC from whatever comes next. On a transformer board this matters more than it looks: a DC current through the primary magnetises the core.',
+    what: 'Blocks the steady voltage from reaching whatever comes next, and lets the signal through. On a transformer board this matters more than it looks: a steady current through a transformer’s winding magnetises its iron core and stops it working properly.',
     expect: 'The last high-pass in the microphone, working against whatever follows it.',
   },
   'out.L_p': {
     order: 54,
     title: 'The output transformer',
-    what: 'Two coils on a shared core. It divides the voltage by the turns ratio, multiplies the impedance by its square, and gives you a balanced output with no electrical connection at all between the microphone and the preamp. One part, six elements in the model — the windings, their copper resistance, the coupling and the capacitance between turns.',
+    what: 'Two coils of wire wound on the same lump of iron. A changing signal in the first coil makes the iron magnetic, and the changing magnetism makes the same signal appear in the second — with no wire joining them anywhere. That electrical separation is worth a great deal: nothing on the cable can find its way back into the microphone.\n\nThe price is level. If the first coil has seven turns for every one on the second, you get a seventh of the voltage out. In exchange the microphone looks much easier to drive, and the output is balanced.\n\nOne part to solder, six things in the model: the two coils, the resistance of their copper, how tightly they share their magnetism, and the capacitance between neighbouring turns of wire.',
     expect:
-      'The level drops by about 17 dB on a 7:1 — real, and you make it up at the preamp. Watch the bottom octave too: the primary inductance resonates with the coupling capacitor and puts a gentle lift down there, which is part of why transformer microphones are described as sounding big.',
+      'The level drops by about 17 dB on a 7:1 — real, and you make it up at the preamp. Watch the bottom octave too: the coil and the capacitor before it push each other into a gentle lift down there, which is part of why transformer microphones get described as sounding big.',
     with: ['out.L_s', 'out.K', 'out.C_w', 'out.R_p', 'out.R_s1', 'out.R_s2'],
   },
   'out.L_s': { order: 54, title: '', what: '', expect: '', silent: true },
@@ -176,16 +176,16 @@ export const PARTS: Record<string, PartInfo> = {
   'out.Ep': {
     order: 55,
     title: 'The phase splitter',
-    what: 'Two devices producing the same signal with opposite polarity. That is all “balanced” means: send it twice, once inverted, and the receiver subtracts one from the other so the signal doubles and anything picked up along the way cancels.',
+    what: 'Two devices producing the same signal, one of them upside down. That is all “balanced” means: send the signal twice, once inverted, and the preamp at the far end subtracts one from the other.\n\nThe useful part is what happens to interference. A hum picked up along thirty metres of cable lands on both wires equally, so when the preamp subtracts them it vanishes — while the signal, which is opposite on the two wires, doubles.',
     expect:
-      'A balanced output without a transformer — cheaper, lighter, and flatter. What you give up is isolation: the microphone’s ground and the preamp’s ground are now connected, which is where every ground-loop problem comes from.',
+      'A balanced output without a transformer: cheaper, lighter and flatter. What you give up is the electrical separation, because the microphone’s ground and the preamp’s ground are now joined by a wire. Every ground-loop problem in the fault panel follows from that.',
     with: ['out.En'],
   },
   'out.En': { order: 55, title: '', what: '', expect: '', silent: true },
   'out.C_outp': {
     order: 56,
     title: 'The output coupling capacitors',
-    what: 'One on each leg, blocking the DC the phase splitter sits at. They are in series around the loop through the preamp’s input, so the pair behaves as half of one of them.',
+    what: 'One on each of the two wires, blocking the steady voltage the stage before them sits at. The signal has to pass through both of them on its way round the loop, so the pair together behaves like a single capacitor of half the size.',
     expect:
       'The last high-pass in the microphone. Into a 1.5 kΩ preamp, 47 µF each corners around 4 Hz; 4.7 µF each would corner at 43 Hz and you would certainly hear it.',
     with: ['out.C_outn'],
@@ -194,7 +194,7 @@ export const PARTS: Record<string, PartInfo> = {
   'out.R_outp': {
     order: 57,
     title: 'The build-out resistors',
-    what: 'Small series resistors on each leg. They protect the output devices, keep radio frequencies out, and set the microphone’s source impedance — the 50 to 200 ohms a studio input expects to see.',
+    what: 'Small resistors in line with each wire. They protect the parts behind them, help keep radio frequencies out, and set how “stiff” the microphone’s output is — the 50 to 200 ohms a studio input expects to find.',
     expect:
       'Almost nothing on the graph, which is the point. They also set how well the two legs are matched, and that decides how much of a ground loop you hear.',
     with: ['out.R_outn'],
@@ -203,7 +203,7 @@ export const PARTS: Record<string, PartInfo> = {
   'out.R_out': {
     order: 57,
     title: 'The output resistor',
-    what: 'The series resistance of an unbalanced output — the arrangement an electret capsule module gives you, with the shield as the return.',
+    what: 'The output resistance of an unbalanced connection — one signal wire and the shield as the return, which is what a small electret capsule module gives you.',
     expect:
       'It works, and over a short cable in a quiet room it works well. Switch on a ground loop later and compare it with the balanced output: that comparison is the whole argument for balanced lines.',
     with: ['out.gndLeg'],
@@ -214,9 +214,9 @@ export const PARTS: Record<string, PartInfo> = {
   'load.R_preamp': {
     order: 70,
     title: 'The cable and the preamp',
-    what: 'Not part of the microphone, and completely part of how it sounds. Every metre of cable is about 100 pF from each leg to the screen, and the preamp presents a finite input impedance across pins 2 and 3.',
+    what: 'Not part of the microphone, and completely part of how it sounds. Every metre of cable adds a little unwanted capacitance between each signal wire and the shield around them, and the preamp at the far end is itself a load the microphone has to drive.',
     expect:
-      'On a transformerless output the preamp’s impedance works against the output capacitors and moves the bass corner. On a transformer output it is reflected into the primary multiplied by the square of the turns ratio, where it damps the transformer instead.',
+      'On a transformerless output the preamp works against the output capacitors and moves the bass corner — so the same microphone genuinely has a slightly different response on different preamps. On a transformer output it does something quite different: it damps the transformer instead.',
     with: [
       'load.R_cablep',
       'load.R_cablen',
@@ -237,9 +237,9 @@ export const PARTS: Record<string, PartInfo> = {
   'load.C_rfp': {
     order: 75,
     title: 'The radio-frequency capacitors',
-    what: 'Two 100 pF capacitors from the output pins to the connector shell. A microphone cable is a fine antenna at 900 MHz, and radio frequency itself would be harmless — except that a semiconductor junction is a rectifier, so the transistor demodulates whatever reaches it.',
+    what: 'Two tiny capacitors from the output pins to the metal shell of the connector. A microphone cable makes an excellent radio aerial, and radio itself is far too fast to hear — so it ought to be harmless.\n\nIt is not, because a transistor is accidentally a rectifier: it passes electricity more easily one way than the other, and that turns an inaudible radio signal into an audible buzz. These two capacitors give the radio an easy path to the shield before it can reach anything that would do that to it.',
     expect:
-      'Nothing at all in the audio band. Their entire job is to short radio frequency to the shield before it can reach anything that rectifies. Leave them out and switch on the RF fault to hear what you have bought.',
+      'Nothing whatsoever in the audible range — that is the entire idea. Leave them out and switch on the “missing RF caps” fault in free build to hear what they were buying you.',
     with: ['load.C_rfn'],
   },
   'load.C_rfn': { order: 75, title: '', what: '', expect: '', silent: true },

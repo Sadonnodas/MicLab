@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '../store/store'
+import { Explained } from './Explained'
 import { LESSONS, lessonByNumber } from '../lessons/lessons'
 import type { LessonStep } from '../store/store'
 
@@ -83,9 +84,9 @@ export function LessonDrawer() {
               {lesson.key}
             </blockquote>
             {lesson.concept.map((p, i) => (
-              <p key={i} className="text-[12.5px] leading-relaxed text-zinc-300">
+              <Explained key={i} className="text-[12.5px] leading-relaxed text-zinc-300">
                 {p}
-              </p>
+              </Explained>
             ))}
           </div>
         ) : null}

@@ -9,6 +9,7 @@ import { interpAt } from '../solver/ac'
 import type { AnalysisResult } from '../solver/analysis'
 import { PRESETS } from '../data/presets'
 import { ModelNotice } from './ModelNotice'
+import { Explained } from './Explained'
 
 /**
  * The assembly walkthrough — one part at a time.
@@ -155,17 +156,22 @@ export function AssemblyMode({ engine }: { engine: MicEngine | null }) {
         <div className="min-h-0 flex-1 overflow-y-auto border-zinc-800 lg:border-l">
           <div className="p-5">
             <h2 className="text-lg font-medium text-zinc-100">{step.title}</h2>
+            <p className="mt-1 text-[11px] text-zinc-600">
+              Words with a dotted underline are explained — hover or tap them.
+            </p>
 
             {step.what.split('\n\n').map((para, i) => (
-              <p key={i} className="mt-3 text-[13.5px] leading-relaxed text-zinc-300">
+              <Explained key={i} className="mt-3 text-[13.5px] leading-relaxed text-zinc-300">
                 {para}
-              </p>
+              </Explained>
             ))}
 
             <h3 className="mt-5 text-[11px] uppercase tracking-wider text-copper-400">
               What to look for
             </h3>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-400">{step.expect}</p>
+            <Explained className="mt-1.5 text-[13px] leading-relaxed text-zinc-400">
+              {step.expect}
+            </Explained>
 
             {result ? <Changed result={result} prev={baseline} solving={solving} /> : null}
           </div>
