@@ -46,6 +46,21 @@ describe('daylight mode', () => {
     }
   })
 
+  it('gives every status colour a light value', () => {
+    // Amber warns, red is a fault, emerald is a pass — and on a light ground
+    // the light end of each scale becomes invisible unless it is swapped.
+    const used = new Set(
+      [...code.matchAll(/-(amber|red|emerald)-(\d{2,3})/g)].map((m) => `${m[1]}-${m[2]}`),
+    )
+    expect(used.size).toBeGreaterThan(5)
+    for (const shade of used) {
+      expect(
+        lightBlocks.includes(`--color-${shade}:`),
+        `${shade} is used but has no daylight value`,
+      ).toBe(true)
+    }
+  })
+
   it('gives every drawing and category colour a light value', () => {
     const used = new Set([...code.matchAll(/var\(--((?:cat|schematic|graph)-[a-z-]+)\)/g)].map((m) => m[1]))
     expect(used.size).toBeGreaterThan(8)
