@@ -18,11 +18,109 @@
   --color-copper-900: #652f21;
 }
 
+/*
+  Light mode.
+
+  The design uses the zinc scale semantically — high numbers are
+  background-like, low numbers are text-like — and Tailwind v4 emits every
+  utility as `var(--color-zinc-N)`. So the whole app can be re-lit by
+  redefining that scale, rather than by pinning a `dark:` variant onto several
+  hundred class names. The values below are hand-picked rather than a
+  mechanical inversion, so that mid-greys stay legible against white instead of
+  washing out.
+*/
+:root[data-theme='light'] {
+  --color-zinc-950: #f7f7f8;
+  --color-zinc-900: #ffffff;
+  --color-zinc-800: #e4e4e7;
+  --color-zinc-700: #d4d4d8;
+  --color-zinc-600: #9a9aa3;
+  --color-zinc-500: #6b6b75;
+  --color-zinc-400: #4b4b54;
+  --color-zinc-300: #35353c;
+  --color-zinc-200: #232327;
+  --color-zinc-100: #141417;
+  --color-zinc-50: #09090b;
+
+  /* Copper has to darken to stay readable on white, except where it is a
+     filled button and the text on top is the light one. */
+  --color-copper-100: #5c2b1e;
+  --color-copper-200: #7b3725;
+  --color-copper-300: #8f4026;
+  --color-copper-400: #a8502b;
+  --color-copper-500: #c0632f;
+  --color-copper-600: #b8562c;
+  --color-copper-700: #d99a6a;
+  --color-copper-800: #eac4a4;
+  --color-copper-900: #fae8d7;
+
+  color-scheme: light;
+}
+
+/*
+  Ink for the drawings.
+  
+  A schematic is the one place where inverting the interface greys is not
+  enough: on paper a circuit is near-black on white, so in daylight mode the
+  wires and parts want far more contrast than a panel border does. These are
+  kept separate from the text scale so darkening a wire does not also darken
+  every caption.
+*/
+:root {
+  --schematic-wire: var(--color-zinc-600);
+  --schematic-part: var(--color-zinc-400);
+  --schematic-label: var(--color-zinc-400);
+  --schematic-label-dim: var(--color-zinc-600);
+  --graph-grid: var(--color-zinc-800);
+  --graph-axis: var(--color-zinc-500);
+  --graph-zero: var(--color-zinc-700);
+  --graph-reference: var(--color-zinc-400);
+}
+
+:root[data-theme='light'] {
+  --schematic-wire: #74747e;
+  --schematic-part: #3f3f46;
+  --schematic-label: #52525b;
+  --schematic-label-dim: #9a9aa3;
+  --graph-grid: #e6e6e9;
+  --graph-axis: #6b6b75;
+  --graph-zero: #c4c4ca;
+  --graph-reference: #52525b;
+}
+
+/* Category colours for the graph and the noise breakdown. Mid-saturation
+   holds up on a dark ground; on white the lighter ones need taking down. */
+:root {
+  --cat-capsule: #e08a52;
+  --cat-polarisation: #60a5fa;
+  --cat-converter: #34d399;
+  --cat-output: #c084fc;
+  --cat-load: #fbbf24;
+  --cat-resistors: #94a3b8;
+  --cat-flicker: #4ade80;
+  --cat-leakage: #facc15;
+  --cat-gate: #38bdf8;
+  --cat-fault: #f87171;
+}
+
+:root[data-theme='light'] {
+  --cat-capsule: #c2622a;
+  --cat-polarisation: #2563eb;
+  --cat-converter: #059669;
+  --cat-output: #9333ea;
+  --cat-load: #b45309;
+  --cat-resistors: #475569;
+  --cat-flicker: #15803d;
+  --cat-leakage: #a16207;
+  --cat-gate: #0369a1;
+  --cat-fault: #dc2626;
+}
+
 html,
 body,
 #root {
   height: 100%;
-  background-color: #09090b;
+  background-color: var(--color-zinc-950);
 }
 
 html {
@@ -38,7 +136,7 @@ body {
 /* Themed scrollbars, matching Synthwise's. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3f3f46 transparent;
+  scrollbar-color: var(--color-zinc-700) transparent;
 }
 *::-webkit-scrollbar {
   width: 10px;
@@ -48,7 +146,7 @@ body {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: #3f3f46;
+  background-color: var(--color-zinc-700);
   border: 2px solid transparent;
   background-clip: content-box;
   border-radius: 9999px;
@@ -69,12 +167,12 @@ input[type="range"] {
 }
 input[type="range"]::-webkit-slider-runnable-track {
   height: 3px;
-  background: #3f3f46;
+  background: var(--color-zinc-700);
   border-radius: 2px;
 }
 input[type="range"]::-moz-range-track {
   height: 3px;
-  background: #3f3f46;
+  background: var(--color-zinc-700);
   border-radius: 2px;
 }
 input[type="range"]::-webkit-slider-thumb {
@@ -94,10 +192,10 @@ input[type="range"]::-moz-range-thumb {
   border: 2px solid #18181b;
 }
 input[type="range"]:disabled::-webkit-slider-thumb {
-  background: #52525b;
+  background: var(--color-zinc-600);
 }
 input[type="range"]:disabled::-moz-range-thumb {
-  background: #52525b;
+  background: var(--color-zinc-600);
 }
 input[type="range"]:focus-visible::-webkit-slider-thumb {
   outline: 2px solid var(--color-copper-300);

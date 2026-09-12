@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ModelNotice } from './ModelNotice'
+import { ThemeToggle } from './ThemeToggle'
 import { useStore } from '../store/store'
 import { PRESETS } from '../data/presets'
 import { LESSONS } from '../lessons/lessons'
@@ -113,6 +114,7 @@ export function Header() {
 
       <div className="relative ml-auto flex items-center gap-2">
         {solving ? <span className="text-[10.5px] text-copper-500/70">solving…</span> : null}
+        <ThemeToggle />
         <button
           onClick={() => {
             navigator.clipboard?.writeText(window.location.href)

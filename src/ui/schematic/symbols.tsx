@@ -41,24 +41,42 @@ export function Part({ id, selected, dimmed, fit = 'fitted', onSelect, onHover, 
       }}
       onMouseEnter={() => !empty && onHover?.(id)}
       onMouseLeave={() => onHover?.(null)}
-      stroke={isNew ? 'var(--color-copper-300)' : selected ? 'var(--color-copper-300)' : '#a1a1aa'}
-      fill="none"
-      strokeWidth={isNew ? 2.4 : selected ? 2 : 1.4}
-      strokeLinecap="round"
-      strokeDasharray={empty ? '3 3' : undefined}
-      style={isNew ? { filter: 'drop-shadow(0 0 5px rgba(234,171,124,0.65))' } : undefined}
     >
-      {children}
+      {/*
+        A resistor is drawn with a 1.4px line, which is a miserable thing to
+        try to hit with a mouse and impossible with a finger. Drawing the same
+        shapes again underneath with a fat transparent stroke gives every part
+        a target about sixteen pixels wide, at no visual cost.
+      */}
+      {empty ? null : (
+        <g stroke="transparent" strokeWidth={16} fill="none" style={{ pointerEvents: 'stroke' }}>
+          {children}
+        </g>
+      )}
+      <g
+        stroke={isNew || selected ? 'var(--color-copper-400)' : 'var(--schematic-part)'}
+        fill="none"
+        strokeWidth={isNew ? 2.4 : selected ? 2 : 1.4}
+        strokeLinecap="round"
+        strokeDasharray={empty ? '3 3' : undefined}
+        style={
+          isNew
+            ? { filter: 'drop-shadow(0 0 5px color-mix(in srgb, var(--color-copper-400) 65%, transparent))' }
+            : undefined
+        }
+      >
+        {children}
+      </g>
     </g>
   )
 }
 
 export const Wire = ({ d }: { d: string }) => (
-  <path d={d} stroke="#52525b" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+  <path d={d} stroke="var(--color-zinc-600)" strokeWidth={1.2} fill="none" strokeLinecap="round" />
 )
 
 export const Node = ({ x, y }: { x: number; y: number }) => (
-  <circle cx={x} cy={y} r={2.4} fill="#52525b" stroke="none" />
+  <circle cx={x} cy={y} r={2.4} fill="var(--color-zinc-600)" stroke="none" />
 )
 
 /** IEC-style rectangular resistor. */
@@ -144,7 +162,7 @@ export function Jfet({ x, y }: { x: number; y: number }) {
       <line x1={x - 6} y1={y - 13} x2={x - 6} y2={y + 13} />
       <line x1={x - 22} y1={y} x2={x - 6} y2={y} />
       {/* gate arrow, pointing in: n-channel */}
-      <path d={`M ${x - 13} ${y - 4} L ${x - 6} ${y} L ${x - 13} ${y + 4} Z`} fill="#a1a1aa" stroke="none" />
+      <path d={`M ${x - 13} ${y - 4} L ${x - 6} ${y} L ${x - 13} ${y + 4} Z`} fill="var(--color-zinc-400)" stroke="none" />
       <line x1={x - 6} y1={y - 9} x2={x + 10} y2={y - 9} />
       <line x1={x + 10} y1={y - 9} x2={x + 10} y2={y - 24} />
       <line x1={x - 6} y1={y + 9} x2={x + 10} y2={y + 9} />
@@ -163,7 +181,7 @@ export function DcSource({ x, y, label }: { x: number; y: number; label?: string
       <line x1={x} y1={y - 13} x2={x} y2={y - 21} />
       <line x1={x} y1={y + 13} x2={x} y2={y + 21} />
       {label ? (
-        <text x={x + 18} y={y + 4} fontSize={9} fill="#71717a" stroke="none">
+        <text x={x + 18} y={y + 4} fontSize={9} fill="var(--schematic-label)" stroke="none">
           {label}
         </text>
       ) : null}
@@ -179,7 +197,7 @@ export function DependentSource({ x, y, sign }: { x: number; y: number; sign?: s
       <line x1={x} y1={y - 14} x2={x} y2={y - 22} />
       <line x1={x} y1={y + 14} x2={x} y2={y + 22} />
       {sign ? (
-        <text x={x} y={y + 4} fontSize={11} textAnchor="middle" fill="#a1a1aa" stroke="none">
+        <text x={x} y={y + 4} fontSize={11} textAnchor="middle" fill="var(--color-zinc-400)" stroke="none">
           {sign}
         </text>
       ) : null}
@@ -188,7 +206,7 @@ export function DependentSource({ x, y, sign }: { x: number; y: number; sign?: s
 }
 
 export const Ground = ({ x, y }: { x: number; y: number }) => (
-  <g stroke="#52525b" strokeWidth={1.2} fill="none">
+  <g stroke="var(--color-zinc-600)" strokeWidth={1.2} fill="none">
     <line x1={x} y1={y} x2={x} y2={y + 6} />
     <line x1={x - 9} y1={y + 6} x2={x + 9} y2={y + 6} />
     <line x1={x - 5.5} y1={y + 10} x2={x + 5.5} y2={y + 10} />
@@ -214,7 +232,7 @@ export const Label = ({
     y={y}
     fontSize={9.5}
     textAnchor={anchor}
-    fill={dim ? '#52525b' : '#a1a1aa'}
+    fill={dim ? 'var(--schematic-label-dim)' : 'var(--schematic-label)'}
     stroke="none"
     className="pointer-events-none select-none"
   >
@@ -244,8 +262,8 @@ export const StageBox = ({
       width={w}
       height={h}
       rx={6}
-      fill={active ? 'rgba(212,112,58,0.05)' : 'transparent'}
-      stroke={active ? 'rgba(212,112,58,0.35)' : '#27272a'}
+      fill={active ? 'color-mix(in srgb, var(--color-copper-500) 7%, transparent)' : 'transparent'}
+      stroke={active ? 'color-mix(in srgb, var(--color-copper-500) 40%, transparent)' : 'var(--color-zinc-800)'}
       strokeWidth={1}
       strokeDasharray={active ? undefined : '3 3'}
     />
@@ -253,7 +271,7 @@ export const StageBox = ({
       x={x + 9}
       y={y + 14}
       fontSize={9}
-      fill={active ? 'var(--color-copper-400)' : '#52525b'}
+      fill={active ? 'var(--color-copper-400)' : 'var(--schematic-label-dim)'}
       className="uppercase tracking-widest"
     >
       {title}
@@ -263,10 +281,10 @@ export const StageBox = ({
 
 /** XLR connector at the far right. */
 export const Xlr = ({ x, y }: { x: number; y: number }) => (
-  <g stroke="#52525b" strokeWidth={1.2} fill="none">
+  <g stroke="var(--color-zinc-600)" strokeWidth={1.2} fill="none">
     <circle cx={x} cy={y} r={17} />
-    <circle cx={x} cy={y - 7} r={2.4} fill="#52525b" />
-    <circle cx={x - 6} cy={y + 4} r={2.4} fill="#52525b" />
-    <circle cx={x + 6} cy={y + 4} r={2.4} fill="#52525b" />
+    <circle cx={x} cy={y - 7} r={2.4} fill="var(--color-zinc-600)" />
+    <circle cx={x - 6} cy={y + 4} r={2.4} fill="var(--color-zinc-600)" />
+    <circle cx={x + 6} cy={y + 4} r={2.4} fill="var(--color-zinc-600)" />
   </g>
 )

@@ -3,12 +3,14 @@ import { useStore } from '../store/store'
 import { Schematic } from './schematic/Schematic'
 import { ResponseGraph } from './ResponseGraph'
 import { buildCircuit } from '../stages/build'
+import { ComponentCard, detailFor, type ComponentDetail } from './ComponentCard'
 import { MicEngine } from '../audio/engine'
 import { DEMOS } from '../audio/demo'
 import { interpAt } from '../solver/ac'
 import type { AnalysisResult } from '../solver/analysis'
 import { PRESETS } from '../data/presets'
 import { ModelNotice } from './ModelNotice'
+import { ThemeToggle } from './ThemeToggle'
 import { Explained } from './Explained'
 
 /**
@@ -33,6 +35,7 @@ export function AssemblyMode({ engine }: { engine: MicEngine | null }) {
 
   const [playing, setPlaying] = useState(false)
   const [clip, setClip] = useState(DEMOS[1].id)
+  const [picked, setPicked] = useState<ComponentDetail | null>(null)
 
   const step = steps[index]
   const next = steps[index + 1]
@@ -42,12 +45,10 @@ export function AssemblyMode({ engine }: { engine: MicEngine | null }) {
     engine.update(result, [])
   }, [engine, result])
 
-  const notes = useMemo(() => {
-    const map: Record<string, { label: string; note: string }> = {}
+  const details = useMemo(() => {
+    const map: Record<string, ComponentDetail> = {}
     try {
-      for (const el of buildCircuit(build).netlist.elements) {
-        map[el.id] = { label: el.label ?? el.id, note: el.note ?? '' }
-      }
+      for (const el of buildCircuit(build).netlist.elements) map[el.id] = detailFor(el)
     } catch {
       /* nothing to show this frame */
     }
@@ -93,6 +94,7 @@ export function AssemblyMode({ engine }: { engine: MicEngine | null }) {
             ))}
           </select>
         </label>
+        <ThemeToggle />
         <ModelNotice compact />
         <button
           onClick={setMode}
@@ -129,12 +131,13 @@ export function AssemblyMode({ engine }: { engine: MicEngine | null }) {
             <Schematic
               build={build}
               activeStage="capsule"
-              selected={null}
-              onSelect={() => {}}
-              notes={notes}
+              selected={picked?.id ?? null}
+              onSelect={(id) => setPicked(id ? (details[id] ?? null) : null)}
+              notes={details}
               fitted={step.enabled}
               justAdded={new Set(step.adds)}
               quiet
+              hint="Click a part that is already on the board to read what it is."
             />
           </div>
           <div className="min-h-0 flex-1 border-b border-zinc-800 lg:border-b-0">
@@ -155,6 +158,11 @@ export function AssemblyMode({ engine }: { engine: MicEngine | null }) {
         {/* ------------------------------------------------------ the text */}
         <div className="min-h-0 flex-1 overflow-y-auto border-zinc-800 lg:border-l">
           <div className="p-5">
+            {picked ? (
+              <div className="mb-4">
+                <ComponentCard detail={picked} onClose={() => setPicked(null)} />
+              </div>
+            ) : null}
             <h2 className="text-lg font-medium text-zinc-100">{step.title}</h2>
             <p className="mt-1 text-[11px] text-zinc-600">
               Words with a dotted underline are explained — hover or tap them.

@@ -50,6 +50,10 @@ npm run dev
 Builds are encoded in the URL, so any state is a link. Nothing is uploaded
 anywhere; audio files stay in the browser.
 
+Click any component on the schematic to read what it is and what it does, and
+hover the dotted words for a plain-language definition. There is a daylight
+theme for bright rooms — it follows the operating system until you pick one.
+
 ## Layout
 
 ```
@@ -76,7 +80,7 @@ docs/
 ## Verification
 
 ```bash
-npm test          # 78 tests
+npm test          # 89 tests
 npm run typecheck
 npm run build
 ```

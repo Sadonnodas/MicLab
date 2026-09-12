@@ -14,7 +14,7 @@ import { LessonDrawer } from './ui/LessonDrawer'
 import { MicEngine } from './audio/engine'
 import { buildCircuit } from './stages/build'
 import { referenceById } from './data/references'
-import { eng } from './lib/format'
+import { ComponentCard, detailFor, type ComponentDetail } from './ui/ComponentCard'
 
 /**
  * Three panes and a transport bar, as in the handoff sketch: schematic and
@@ -53,27 +53,11 @@ export default function App() {
     }
   }, [])
 
-  // Component notes for the schematic's hover strip, straight from the netlist.
-  const notes = useMemo(() => {
-    const map: Record<string, { label: string; note: string; value?: string }> = {}
+  // Everything the schematic needs to describe a part, straight from the netlist.
+  const details = useMemo(() => {
+    const map: Record<string, ComponentDetail> = {}
     try {
-      const { netlist } = buildCircuit(build)
-      for (const el of netlist.elements) {
-        map[el.id] = {
-          label: el.label ?? el.id,
-          note: el.note ?? '',
-          value:
-            el.kind === 'R'
-              ? eng(el.params.R, 'Ω')
-              : el.kind === 'C'
-                ? eng(el.params.C, 'F')
-                : el.kind === 'L'
-                  ? eng(el.params.L, 'H')
-                  : el.kind === 'V'
-                    ? `${el.params.V} V`
-                    : undefined,
-        }
-      }
+      for (const el of buildCircuit(build).netlist.elements) map[el.id] = detailFor(el)
     } catch {
       /* a half-built netlist just means no hover text this frame */
     }
@@ -109,7 +93,7 @@ export default function App() {
                   activeStage={stage}
                   selected={selected}
                   onSelect={selectElement}
-                  notes={notes}
+                  notes={details}
                 />
               </div>
               <div className="min-h-0 flex-1">
@@ -161,8 +145,14 @@ export default function App() {
                   )}
                 </div>
               </div>
-              <div className="h-[38%] min-h-[170px] shrink-0 overflow-hidden">
-                <ExplanationPanel />
+              <div className="flex h-[38%] min-h-[170px] shrink-0 flex-col overflow-hidden">
+                {selected && details[selected] ? (
+                  <div className="min-h-0 overflow-y-auto p-3">
+                    <ComponentCard detail={details[selected]} onClose={() => selectElement(null)} />
+                  </div>
+                ) : (
+                  <ExplanationPanel />
+                )}
               </div>
             </div>
           </div>

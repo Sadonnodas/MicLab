@@ -28,11 +28,11 @@ const H = 430
 const PAD = { l: 44, r: 14, t: 14, b: 28 }
 
 const STAGE_COLOURS: Record<string, string> = {
-  capsule: '#e08a52',
-  polarisation: '#60a5fa',
-  converter: '#34d399',
-  output: '#c084fc',
-  load: '#fbbf24',
+  capsule: 'var(--cat-capsule)',
+  polarisation: 'var(--cat-polarisation)',
+  converter: 'var(--cat-converter)',
+  output: 'var(--cat-output)',
+  load: 'var(--cat-load)',
 }
 
 const STAGE_NAMES: Record<string, string> = {
@@ -115,8 +115,8 @@ export function ResponseGraph({ result, reference, activeStage, showStages, befo
         {/* grid */}
         {GRID_F.map((f) => (
           <g key={f}>
-            <line x1={x(f)} y1={PAD.t} x2={x(f)} y2={H - PAD.b} stroke="#27272a" strokeWidth={1} />
-            <text x={x(f)} y={H - PAD.b + 15} fontSize={9} textAnchor="middle" fill="#71717a">
+            <line x1={x(f)} y1={PAD.t} x2={x(f)} y2={H - PAD.b} stroke="var(--graph-grid)" strokeWidth={1} />
+            <text x={x(f)} y={H - PAD.b + 15} fontSize={9} textAnchor="middle" fill="var(--graph-axis)">
               {fmtF(f)}
             </text>
           </g>
@@ -128,10 +128,10 @@ export function ResponseGraph({ result, reference, activeStage, showStages, befo
               y1={y(db)}
               x2={W - PAD.r}
               y2={y(db)}
-              stroke={db === 0 ? '#3f3f46' : '#27272a'}
+              stroke={db === 0 ? 'var(--graph-zero)' : 'var(--graph-grid)'}
               strokeWidth={db === 0 ? 1.4 : 1}
             />
-            <text x={PAD.l - 6} y={y(db) + 3} fontSize={9} textAnchor="end" fill="#71717a">
+            <text x={PAD.l - 6} y={y(db) + 3} fontSize={9} textAnchor="end" fill="var(--graph-axis)">
               {db > 0 ? `+${db}` : db}
             </text>
           </g>
@@ -146,19 +146,19 @@ export function ResponseGraph({ result, reference, activeStage, showStages, befo
             stroke={STAGE_COLOURS[s.stage]}
             strokeWidth={s.stage === activeStage ? 1.8 : 1}
             strokeDasharray="4 3"
-            opacity={s.stage === activeStage ? 0.95 : 0.4}
+            opacity={s.stage === activeStage ? 0.95 : 0.55}
           />
         ))}
 
         {refPath ? (
-          <path d={refPath} fill="none" stroke="#a1a1aa" strokeWidth={1.4} strokeDasharray="2 4" opacity={0.8} />
+          <path d={refPath} fill="none" stroke="var(--graph-reference)" strokeWidth={1.4} strokeDasharray="2 4" opacity={0.8} />
         ) : null}
 
         {beforePath ? (
           <path
             d={beforePath}
             fill="none"
-            stroke="#71717a"
+            stroke="var(--graph-reference)"
             strokeWidth={1.6}
             strokeDasharray="5 4"
             strokeLinejoin="round"
@@ -169,7 +169,7 @@ export function ResponseGraph({ result, reference, activeStage, showStages, befo
 
         {probeF !== null ? (
           <g>
-            <line x1={x(probeF)} y1={PAD.t} x2={x(probeF)} y2={H - PAD.b} stroke="#52525b" strokeWidth={1} />
+            <line x1={x(probeF)} y1={PAD.t} x2={x(probeF)} y2={H - PAD.b} stroke="var(--graph-axis)" strokeWidth={1} />
             <circle cx={x(probeF)} cy={y(interpAt(result.freqs, result.mag, probeF))} r={3.5} fill="var(--color-copper-300)" />
           </g>
         ) : null}

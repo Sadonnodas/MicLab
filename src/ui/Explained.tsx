@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { GLOSSARY_PATTERNS, type GlossaryEntry } from '../lessons/glossary'
 
 /**
@@ -12,9 +13,6 @@ import { GLOSSARY_PATTERNS, type GlossaryEntry } from '../lessons/glossary'
  * Only the first occurrence in a passage is marked, so a paragraph about
  * capacitors is not a field of dotted underlines.
  */
-
-/** Matches the w-72 on the bubble. */
-const TOOLTIP_WIDTH = 288
 
 export function Explained({ children, className }: { children: string; className?: string }) {
   const seen = useRef(new Set<string>())
@@ -69,17 +67,6 @@ function Term({ entry, children }: { entry: GlossaryEntry; children: ReactNode }
   const [pinned, setPinned] = useState(false)
   const open = hovered || pinned
   const ref = useRef<HTMLSpanElement>(null)
-  const [flip, setFlip] = useState(false)
-  const [alignRight, setAlignRight] = useState(false)
-
-  useEffect(() => {
-    if (!open || !ref.current) return
-    // Keep the bubble on screen: drop it below the word when there is no room
-    // above, and hang it from the right when the word is near the right edge.
-    const box = ref.current.getBoundingClientRect()
-    setFlip(box.top < 190)
-    setAlignRight(box.left + TOOLTIP_WIDTH > window.innerWidth - 40)
-  }, [open])
 
   useEffect(() => {
     if (!pinned) return
@@ -102,18 +89,13 @@ function Term({ entry, children }: { entry: GlossaryEntry; children: ReactNode }
           e.stopPropagation()
           setPinned((v) => !v)
         }}
-        className="cursor-help border-b border-dotted border-copper-500/70 text-copper-200/90 transition-colors hover:border-copper-300 hover:text-copper-100"
+        className="cursor-help border-b border-dotted border-copper-500/70 text-copper-300 transition-colors hover:border-copper-400 hover:text-copper-200"
         aria-expanded={open}
       >
         {children}
       </button>
       {open ? (
-        <span
-          role="tooltip"
-          className={`absolute z-40 w-72 rounded-md border border-zinc-700 bg-zinc-900 p-3 text-left shadow-xl ${
-            flip ? 'top-[calc(100%+8px)]' : 'bottom-[calc(100%+8px)]'
-          } ${alignRight ? 'right-0' : 'left-0'}`}
-        >
+        <Bubble anchor={ref}>
           <span className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-copper-400">
             {entry.term}
           </span>
@@ -125,8 +107,74 @@ function Term({ entry, children }: { entry: GlossaryEntry; children: ReactNode }
               {entry.more}
             </span>
           ) : null}
-        </span>
+        </Bubble>
       ) : null}
     </span>
+  )
+}
+
+/**
+ * A popover that cannot be cut off.
+ *
+ * It is rendered into the document body and positioned with `fixed`, so no
+ * scrolling panel or overflow rule between here and the root can clip it, and
+ * its coordinates are clamped to the window — which is the whole problem with
+ * absolutely-positioned tooltips inside a three-pane layout.
+ */
+export function Bubble({
+  anchor,
+  width = 288,
+  children,
+}: {
+  anchor: React.RefObject<HTMLElement | null>
+  width?: number
+  children: ReactNode
+}) {
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
+  const self = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const place = () => {
+      const a = anchor.current?.getBoundingClientRect()
+      if (!a) return
+      const margin = 10
+      const height = self.current?.offsetHeight ?? 150
+
+      // Prefer above the word; drop below when there is no room up there.
+      const above = a.top - margin - height
+      const top = above >= margin ? above : Math.min(a.bottom + margin, window.innerHeight - height - margin)
+
+      // Start at the word's left edge, then pull it back inside the window.
+      const left = Math.max(margin, Math.min(a.left, window.innerWidth - width - margin))
+
+      setPos({ left, top: Math.max(margin, top) })
+    }
+    place()
+    // Re-place after the first paint, once the real height is known.
+    const id = requestAnimationFrame(place)
+    window.addEventListener('scroll', place, true)
+    window.addEventListener('resize', place)
+    return () => {
+      cancelAnimationFrame(id)
+      window.removeEventListener('scroll', place, true)
+      window.removeEventListener('resize', place)
+    }
+  }, [anchor, width])
+
+  return createPortal(
+    <span
+      ref={self}
+      role="tooltip"
+      style={{
+        left: pos?.left ?? -9999,
+        top: pos?.top ?? -9999,
+        width,
+        visibility: pos ? 'visible' : 'hidden',
+      }}
+      className="pointer-events-none fixed z-50 rounded-md border border-zinc-700 bg-zinc-900 p-3 text-left shadow-xl"
+    >
+      {children}
+    </span>,
+    document.body,
   )
 }

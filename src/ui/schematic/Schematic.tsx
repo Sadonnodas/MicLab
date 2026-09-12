@@ -37,14 +37,16 @@ interface Props {
   /** Assembly walkthrough: which parts are on the board, and which just arrived. */
   fitted?: Set<string>
   justAdded?: Set<string>
-  /** Hide the hover strip in the simplified walkthrough. */
+  /** Hide the stage boxes and the value read-out in the simplified walkthrough. */
   quiet?: boolean
+  /** Replaces the default prompt under the schematic. */
+  hint?: string
 }
 
 const W = 1120
 const H = 300
 
-export function Schematic({ build, activeStage, selected, onSelect, notes, fitted, justAdded, quiet }: Props) {
+export function Schematic({ build, activeStage, selected, onSelect, notes, fitted, justAdded, quiet, hint }: Props) {
   const [hover, setHover] = useState<string | null>(null)
   const info = hover ? notes[hover] : selected ? notes[selected] : null
 
@@ -415,13 +417,13 @@ export function Schematic({ build, activeStage, selected, onSelect, notes, fitte
         </Label>
 
         {build.faults.length > 0 ? (
-          <text x={W - 12} y={26} fontSize={10} textAnchor="end" fill="#f87171" className="uppercase tracking-wider">
+          <text x={W - 12} y={26} fontSize={10} textAnchor="end" fill="var(--cat-fault)" className="uppercase tracking-wider">
             {build.faults.length} fault{build.faults.length > 1 ? 's' : ''} active
           </text>
         ) : null}
       </svg>
 
-      <div className={`flex min-h-[42px] items-center gap-2 border-t border-zinc-800 px-3 py-2 text-xs ${quiet ? 'hidden' : ''}`}>
+      <div className="flex min-h-[38px] items-center gap-2 border-t border-zinc-800 px-3 py-2 text-xs">
         {info ? (
           <>
             <span className="shrink-0 font-medium text-copper-300">{info.label}</span>
@@ -429,7 +431,9 @@ export function Schematic({ build, activeStage, selected, onSelect, notes, fitte
             <span className="truncate text-zinc-500">{info.note}</span>
           </>
         ) : (
-          <span className="text-zinc-600">Hover a component to see what it does; click to select it.</span>
+          <span className="text-zinc-600">
+            {hint ?? 'Hover a component to see what it does; click it to read more.'}
+          </span>
         )}
       </div>
     </div>

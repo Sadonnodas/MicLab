@@ -9,14 +9,14 @@ import { P_REF } from '../solver/noise'
  */
 
 const COLOURS: Record<string, string> = {
-  capsule: '#e08a52',
-  R_pol: '#60a5fa',
-  R_gate: '#38bdf8',
-  resistors: '#94a3b8',
-  'fet-channel': '#34d399',
-  'fet-flicker': '#4ade80',
-  'gate-leakage': '#facc15',
-  output: '#c084fc',
+  capsule: 'var(--cat-capsule)',
+  R_pol: 'var(--cat-polarisation)',
+  R_gate: 'var(--cat-gate)',
+  resistors: 'var(--cat-resistors)',
+  'fet-channel': 'var(--cat-converter)',
+  'fet-flicker': 'var(--cat-flicker)',
+  'gate-leakage': 'var(--cat-leakage)',
+  output: 'var(--cat-output)',
 }
 
 const W = 760
@@ -77,7 +77,7 @@ export function NoiseView({ result }: { result: AnalysisResult }) {
             <div
               key={b.kind}
               title={`${b.label}: ${b.dBA.toFixed(1)} dB-A`}
-              style={{ width: `${(b.share / total) * 100}%`, backgroundColor: COLOURS[b.kind] ?? '#71717a' }}
+              style={{ width: `${(b.share / total) * 100}%`, backgroundColor: COLOURS[b.kind] ?? 'var(--color-zinc-500)' }}
             />
           ))}
         </div>
@@ -88,7 +88,7 @@ export function NoiseView({ result }: { result: AnalysisResult }) {
               <li key={b.kind} className="flex items-center gap-2">
                 <span
                   className="inline-block h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: COLOURS[b.kind] ?? '#71717a' }}
+                  style={{ backgroundColor: COLOURS[b.kind] ?? 'var(--color-zinc-500)' }}
                 />
                 <span className="truncate text-zinc-400">{b.label}</span>
                 <span className="ml-auto shrink-0 tabular text-zinc-500">
@@ -106,22 +106,22 @@ export function NoiseView({ result }: { result: AnalysisResult }) {
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
           {[20, 100, 1000, 10000, 20000].map((f) => (
             <g key={f}>
-              <line x1={x(f)} y1={PAD.t} x2={x(f)} y2={H - PAD.b} stroke="#27272a" />
-              <text x={x(f)} y={H - PAD.b + 14} fontSize={9} textAnchor="middle" fill="#71717a">
+              <line x1={x(f)} y1={PAD.t} x2={x(f)} y2={H - PAD.b} stroke="var(--graph-grid)" />
+              <text x={x(f)} y={H - PAD.b + 14} fontSize={9} textAnchor="middle" fill="var(--graph-axis)">
                 {f >= 1000 ? `${f / 1000}k` : f}
               </text>
             </g>
           ))}
           {[-20, 0, 20, 40].map((v) => (
             <g key={v}>
-              <line x1={PAD.l} y1={y(v)} x2={W - PAD.r} y2={y(v)} stroke="#27272a" />
-              <text x={PAD.l - 6} y={y(v) + 3} fontSize={9} textAnchor="end" fill="#71717a">
+              <line x1={PAD.l} y1={y(v)} x2={W - PAD.r} y2={y(v)} stroke="var(--graph-grid)" />
+              <text x={PAD.l - 6} y={y(v) + 3} fontSize={9} textAnchor="end" fill="var(--graph-axis)">
                 {v}
               </text>
             </g>
           ))}
           <path d={d} fill="none" stroke="var(--color-copper-400)" strokeWidth={2} />
-          <text x={PAD.l} y={H - 4} fontSize={9} fill="#52525b">
+          <text x={PAD.l} y={H - 4} fontSize={9} fill="var(--graph-axis)">
             dB SPL per √Hz
           </text>
         </svg>
